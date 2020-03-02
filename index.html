@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>stop other YouTube player existing iframe</title>
+    <script>
+    (function(){
+      'use strict';
+
+      window.onYouTubeIframeAPIReady = function() {
+        const iframes = document.querySelectorAll('iframe[src^="https://www.youtube.com"]');
+        const players = [];
+        
+        const onReady = function(event) {
+          console.log('onReady', event.target);
+        };
+
+        const onStateChange = function(event) {
+          console.log('onStateChange', event.target, event.data);
+
+          if (event.data !== YT.PlayerState.PLAYING) {
+            return;
+          }
+
+          for (const player of players) {
+            if (player === event.target) {
+              continue;
+            }
+
+            player.pauseVideo();
+          }
+        };
+
+        for (const iframe of iframes) {
+          const player = new window.YT.Player(iframe, {
+            events: {
+              onReady,
+              onStateChange
+            }
+          });
+
+          players.push(player);
+        }
+
+        window.players = players;
+      }
+
+      const youtubeScript = document.createElement('script');
+      youtubeScript.async = true;
+      youtubeScript.src = 'https://www.youtube.com/iframe_api';
+
+      const firstScript = document.scripts[0];
+      firstScript.parentNode.insertBefore(youtubeScript, firstScript);
+    })();
+    </script>
+  </head>
+  <body>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/hLMJXH8TMJg?wmode=transparent&enablejsapi=1&origin=https://sasaplus1-prototype.github.io" frameborder="0" allowfullscreen></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/PcPWtJAx0K4?wmode=transparent&enablejsapi=1&origin=https://sasaplus1-prototype.github.io" frameborder="0" allowfullscreen></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/mhik8nkFfR4?wmode=transparent&enablejsapi=1&origin=https://sasaplus1-prototype.github.io" frameborder="0" allowfullscreen></iframe>
+  </body>
+</html>
